@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Espectro Autista</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: transparent;
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo-container {
+            margin-bottom: 30px;
+            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.4));
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        .header-logo-container img {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section-container {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .section-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-group {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .category-label {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .category-label.social {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .category-label.sensory {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .category-label.interest {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .category-label.language {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            background: #f5f5f5;
+            border-color: #667eea;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 15px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .radio-option label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-restart {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .overall-score {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .overall-score h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .score-number {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .score-interpretation {
+            font-size: 1.3em;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .category-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .category-card {
+            background: #f9f9f9;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .category-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .category-card.social {
+            border-left-color: #1976d2;
+        }
+
+        .category-card.social h3 {
+            color: #1976d2;
+        }
+
+        .category-card.sensory {
+            border-left-color: #7b1fa2;
+        }
+
+        .category-card.sensory h3 {
+            color: #7b1fa2;
+        }
+
+        .category-card.interest {
+            border-left-color: #388e3c;
+        }
+
+        .category-card.interest h3 {
+            color: #388e3c;
+        }
+
+        .category-card.language {
+            border-left-color: #f57c00;
+        }
+
+        .category-card.language h3 {
+            color: #f57c00;
+        }
+
+        .category-score {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .category-card.social .category-score {
+            color: #1976d2;
+        }
+
+        .category-card.sensory .category-score {
+            color: #7b1fa2;
+        }
+
+        .category-card.interest .category-score {
+            color: #388e3c;
+        }
+
+        .category-card.language .category-score {
+            color: #f57c00;
+        }
+
+        .category-threshold {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .detailed-results {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .detailed-results h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .interpretation-box {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .interpretation-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .interpretation-box p {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .interpretation-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #856404;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .step-indicator {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .step-indicator strong {
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 40px 20px;
+            }
+
+            .header-logo-container img {
+                width: 100px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .category-results {
+                grid-template-columns: 1fr;
+            }
+
+            .score-number {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-background"></div>
+            <div class="header-content">
+                <div class="header-logo-container">
+                    <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/0fca44ce-8af5-458d-bda5-1b5f5d1f1873" alt="Logo Eduardo Limpio">
+                </div>
+                <h1>🧠 Evaluador de Espectro Autista</h1>
+                <p style="font-size: 0.95em; opacity: 0.95; margin-bottom: 0;">Herramienta de detección basada en criterios DSM-5</p>
+                <p style="font-size: 0.9em; opacity: 0.85; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 15px;">Desarrollado por: <strong>Ing. Eduardo Limpio</strong></p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Intro Section -->
+            <div id="introSection" class="section-container active">
+                <h2 style="color: #667eea; margin-bottom: 20px;">Bienvenido</h2>
+                <p style="font-size: 1.05em; line-height: 1.8; color: #333; margin-bottom: 20px;">
+                    Esta plataforma es una herramienta de <strong>detección preliminar</strong> basada en los criterios diagnósticos del DSM-5 (Manual Diagnóstico y Estadístico de los Trastornos Mentales).
+                </p>
+                <p style="font-size: 1.05em; line-height: 1.8; color: #333; margin-bottom: 20px;">
+                    Responderá un conjunto de preguntas sobre patrones de comportamiento y características sociales. Las respuestas se analizarán en 4 categorías principales:
+                </p>
+                <ul style="margin-left: 20px; margin-bottom: 20px; color: #333; line-height: 1.8;">
+                    <li><strong style="color: #1976d2;">Interacción Social:</strong> Cómo se relaciona con otros</li>
+                    <li><strong style="color: #7b1fa2;">Procesamiento Sensorial:</strong> Reacciones a estímulos sensoriales</li>
+                    <li><strong style="color: #388e3c;">Intereses Restringidos:</strong> Patrones de intereses específicos</li>
+                    <li><strong style="color: #f57c00;">Lenguaje y Comunicación:</strong> Características del habla y comunicación</li>
+                </ul>
+                <div class="disclaimer">
+                    <strong>⚠️ Descargo de Responsabilidad:</strong> Esta herramienta es de carácter informativo y NO reemplaza una evaluación profesional realizada por un psicólogo, psiquiatra o especialista. Si sospecha que usted o alguien más tiene características del espectro autista, consulte con un profesional de salud mental calificado para una evaluación formal.
+                </div>
+                <div class="button-group" style="margin-top: 30px;">
+                    <button class="btn-primary" onclick="startQuiz()">Comenzar Evaluación</button>
+                </div>
+            </div>
+
+            <!-- Quiz Section -->
+            <div id="quizSection" class="section-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="step-indicator">
+                    Pregunta <strong id="currentQuestion">1</strong> de <strong id="totalQuestions">60</strong>
+                </div>
+                <form id="quizForm">
+                    <div id="questionsContainer"></div>
+                    <div class="button-group">
+                        <button type="button" class="btn-secondary" onclick="previousQuestion()" id="prevBtn" style="display: none;">← Anterior</button>
+                        <button type="button" class="btn-primary" onclick="nextQuestion()" id="nextBtn">Siguiente →</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="section-container results-container">
+                <div class="overall-score">
+                    <h2>Resultados de tu Evaluación</h2>
+                    <div class="score-number" id="overallScore">0</div>
+                    <div class="score-interpretation" id="scoreInterpretation">Analizando...</div>
+                </div>
+
+                <div class="category-results" id="categoryResults"></div>
+
+                <div class="interpretation-box">
+                    <h3>🔍 Interpretación de Resultados</h3>
+                    <div id="interpretationText"></div>
+                </div>
+
+                <div class="detailed-results">
+                    <h3>📊 Detalle por Categoría</h3>
+                    <div id="detailedResults"></div>
+                </div>
+
+                <div class="disclaimer">
+                    <strong>⚠️ Información Importante:</strong> Los resultados de esta evaluación son indicativos. Si los resultados sugieren características asociadas con el espectro autista, se recomienda encarecidamente consultar con un profesional calificado (psicólogo, psiquiatra o especialista en neurodivergencia) para una evaluación formal y diagnóstico profesional.
+                </div>
+
+                <div class="button-group" style="margin-top: 30px;">
+                    <button type="button" class="btn-restart" onclick="restartQuiz()">Realizar Nueva Evaluación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions Database
+        const questions = [
+            // Social Relatedness (31 questions) - Threshold: 31
+            { category: 'social', text: 'Me resulta difícil entender lo que otros piensan o sienten', weight: 1 },
+            { category: 'social', text: 'Prefiero pasar tiempo solo que con otras personas', weight: 1 },
+            { category: 'social', text: 'Me cuesta trabajo hacer amigos', weight: 1 },
+            { category: 'social', text: 'No entiendo las expresiones faciales de los demás', weight: 1 },
+            { category: 'social', text: 'Tengo dificultad para mantener una conversación', weight: 1 },
+            { category: 'social', text: 'No disfruto de actividades sociales como otros', weight: 1 },
+            { category: 'social', text: 'Me siento incómodo en situaciones sociales', weight: 1 },
+            { category: 'social', text: 'No entiendo los chistes o el sarcasmo', weight: 1 },
+            { category: 'social', text: 'Tengo dificultad para iniciar conversaciones', weight: 1 },
+            { category: 'social', text: 'No leo bien el lenguaje corporal de otros', weight: 1 },
+            { category: 'social', text: 'Mis amigos dicen que soy extraño o diferente', weight: 1 },
+            { category: 'social', text: 'No entiendo las reglas no escritas sociales', weight: 1 },
+            { category: 'social', text: 'Me es difícil compartir intereses con otros', weight: 1 },
+            { category: 'social', text: 'Evito el contacto visual en conversaciones', weight: 1 },
+            { category: 'social', text: 'He sido rechazado por mis compañeros', weight: 1 },
+
+            // Circumscribed Interests (15 questions) - Threshold: 15
+            { category: 'interest', text: 'Tengo intereses muy específicos y limitados', weight: 1 },
+            { category: 'interest', text: 'Me enfoco intensamente en temas particulares', weight: 1 },
+            { category: 'interest', text: 'Es difícil que me interese algo diferente a mis temas favoritos', weight: 1 },
+            { category: 'interest', text: 'Paso horas obsesionado con mis intereses', weight: 1 },
+            { category: 'interest', text: 'Mi familia dice que hablo demasiado de un solo tema', weight: 1 },
+            { category: 'interest', text: 'Colecciono cosas de manera compulsiva', weight: 1 },
+            { category: 'interest', text: 'Tengo intereses inusuales o poco comunes', weight: 1 },
+            { category: 'interest', text: 'Necesito mantener el orden en mis colecciones', weight: 1 },
+            { category: 'interest', text: 'Disfruto clasificando y organizando cosas', weight: 1 },
+            { category: 'interest', text: 'Tengo dificultad para cambiar de actividad si estoy enfocado', weight: 1 },
+
+            // Language (4 questions) - Threshold: 4
+            { category: 'language', text: 'Mi forma de hablar es inusual o peculiar', weight: 1 },
+            { category: 'language', text: 'A menudo repito palabras o frases que escucho (ecolalia)', weight: 1 },
+            { category: 'language', text: 'Tengo un tono de voz monótono o poco variable', weight: 1 },
+            { category: 'language', text: 'Hablo como si estuviera leyendo un guión', weight: 1 },
+
+            // Sensory-Motor (20 questions) - Threshold: 16
+            { category: 'sensory', text: 'Ciertos sonidos me resultan intolerables o muy molestos', weight: 1 },
+            { category: 'sensory', text: 'Me molestan ciertas texturas o materiales al tacto', weight: 1 },
+            { category: 'sensory', text: 'Soy muy sensible a la luz o me molestan luces brillantes', weight: 1 },
+            { category: 'sensory', text: 'Tengo problemas con ciertos olores o gustos', weight: 1 },
+            { category: 'sensory', text: 'Realizo movimientos repetitivos (stim) como balancearme o golpear', weight: 1 },
+            { category: 'sensory', text: 'Hago movimientos repetitivos con mis dedos o manos', weight: 1 },
+            { category: 'sensory', text: 'Me fascinan las luces o movimientos visualmente', weight: 1 },
+            { category: 'sensory', text: 'Necesito rutinas y me perturba cambiar el orden de las cosas', weight: 1 },
+            { category: 'sensory', text: 'Soy muy clumsy o tengo mala coordinación motriz', weight: 1 },
+            { category: 'sensory', text: 'Me molesta usar ciertos tipos de ropa', weight: 1 },
+            { category: 'sensory', text: 'Evito ciertos lugares por sensibilidades sensoriales', weight: 1 },
+            { category: 'sensory', text: 'Hago sonidos repetitivos sin darme cuenta', weight: 1 },
+            { category: 'sensory', text: 'Tengo dificultad para modular el volumen de mi voz', weight: 1 },
+            { category: 'sensory', text: 'Soy insensible al dolor o muy sensible', weight: 1 },
+            { category: 'sensory', text: 'Necesito seguir rutinas o rituales específicos', weight: 1 },
+
+            // Additional Social Questions
+            { category: 'social', text: 'Me sorprende que otros se molesten cuando creo que fui honesto', weight: 1 },
+            { category: 'social', text: 'No entiendo por qué otros se ríen de bromas que no veo', weight: 1 },
+            { category: 'social', text: 'Tengo dificultad para identificar emociones en otros', weight: 1 },
+            { category: 'social', text: 'Prefiero actividades solitarias a las de grupo', weight: 1 },
+            { category: 'social', text: 'Me cuesta mantener amistades', weight: 1 },
+
+            // Additional Interest Questions
+            { category: 'interest', text: 'Tengo comportamientos rituales o rutinas que debo seguir', weight: 1 },
+            { category: 'interest', text: 'Me molesta que cambien mis rutinas diarias', weight: 1 },
+            { category: 'interest', text: 'Prefiero predecibilidad y orden en mis actividades', weight: 1 },
+            { category: 'interest', text: 'Tengo patrones de pensamiento muy rígidos', weight: 1 },
+
+            // Additional Sensory Questions
+            { category: 'sensory', text: 'Evito abrazar o que me toquen', weight: 1 },
+            { category: 'sensory', text: 'Tengo alimentos muy limitados que puedo comer', weight: 1 },
+            { category: 'sensory', text: 'Me angustia usar ciertos tipos de telas', weight: 1 },
+            { category: 'sensory', text: 'Tengo reacciones emocionales intensas a cambios', weight: 1 },
+            { category: 'sensory', text: 'Soy extremadamente leal a mis rutinas', weight: 1 },
+
+            // More variety
+            { category: 'social', text: 'Tengo dificultad para leer el contexto social', weight: 1 },
+            { category: 'social', text: 'A menudo digo cosas que otros consideran inapropiadas', weight: 1 },
+            { category: 'social', text: 'Prefiero estar en pequeños grupos o solo', weight: 1 },
+            { category: 'interest', text: 'Acumulo información sobre mis temas de interés', weight: 1 },
+            { category: 'interest', text: 'Me apasionan mis intereses de manera obsesiva', weight: 1 },
+            { category: 'sensory', text: 'Me siento abrumado en espacios públicos muy concurridos', weight: 1 },
+            { category: 'sensory', text: 'He tenido crisis emocionales por cambios inesperados', weight: 1 },
+            { category: 'language', text: 'Me dicen que tengo un acento o forma de hablar inusual', weight: 1 },
+            { category: 'sensory', text: 'Tengo ritmos anormales de sueño o comida', weight: 1 },
+            { category: 'social', text: 'Tengo dificultad para entender perspectivas diferentes', weight: 1 },
+            { category: 'interest', text: 'He tenido los mismos intereses desde la infancia', weight: 1 },
+            { category: 'sensory', text: 'Las multitudes me generan ansiedad o sobrecarga', weight: 1 },
+            { category: 'social', text: 'No entiendo por qué otros no ven las cosas como yo', weight: 1 },
+            { category: 'language', text: 'Tengo dificultad con la expresión verbal flexible', weight: 1 },
+            { category: 'sensory', text: 'Necesito tiempo para procesar información nueva', weight: 1 },
+            { category: 'interest', text: 'Tengo dificultad flexible con cambios de planes', weight: 1 },
+            { category: 'social', text: 'Me cuesta expresar mis sentimientos verbalmente', weight: 1 },
+            { category: 'sensory', text: 'La sobreestimulación me afecta profundamente', weight: 1 },
+            { category: 'social', text: 'A menudo me siento incomprendido por otros', weight: 1 },
+            { category: 'interest', text: 'Busco control y previsibilidad en mi ambiente', weight: 1 },
+        ];
+
+        const responses = {
+            0: { value: 0, label: 'No, nunca' },
+            1: { value: 1, label: 'Raramente' },
+            2: { value: 2, label: 'A veces' },
+            3: { value: 3, label: 'Frecuentemente' }
+        };
+
+        let currentQuestionIndex = 0;
+        let answers = new Array(questions.length).fill(null);
+
+        function startQuiz() {
+            document.getElementById('introSection').classList.remove('active');
+            document.getElementById('quizSection').classList.add('active');
+            document.getElementById('totalQuestions').textContent = questions.length;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const question = questions[currentQuestionIndex];
+            const container = document.getElementById('questionsContainer');
+            
+            container.innerHTML = `
+                <div class="question-group">
+                    <span class="category-label ${question.category}">
+                        ${getCategoryName(question.category)}
+                    </span>
+                    <div class="question-text">${question.text}</div>
+                    <div class="radio-group">
+                        ${Object.entries(responses).map(([ key, obj ]) => `
+                            <div class="radio-option">
+                                <input type="radio" 
+                                       id="response${key}" 
+                                       name="response" 
+                                       value="${key}"
+                                       ${answers[currentQuestionIndex] === parseInt(key) ? 'checked' : ''}
+                                       onchange="answers[${currentQuestionIndex}] = ${key}; updateProgress();">
+                                <label for="response${key}">${obj.label}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('prevBtn').style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === questions.length - 1 ? 'Ver Resultados ✓' : 'Siguiente →';
+            updateProgress();
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                social: '👥 Interacción Social',
+                sensory: '🔊 Sensorial',
+                interest: '⭐ Intereses Restringidos',
+                language: '🗣️ Lenguaje'
+            };
+            return names[category] || category;
+        }
+
+        function updateProgress() {
+            const answered = answers.filter(a => a !== null).length;
+            const progress = (answered / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function nextQuestion() {
+            if (answers[currentQuestionIndex] === null) {
+                alert('Por favor, selecciona una respuesta antes de continuar.');
+                return;
+            }
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+                document.getElementById('questionsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+                document.getElementById('questionsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizSection').classList.remove('active');
+            document.getElementById('resultsSection').classList.add('active');
+            
+            const scores = calculateScores();
+            displayResults(scores);
+            
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function calculateScores() {
+            const categoryScores = {
+                social: { score: 0, threshold: 31, max: 46, name: 'Interacción Social' },
+                sensory: { score: 0, threshold: 16, max: 60, name: 'Procesamiento Sensorial' },
+                interest: { score: 0, threshold: 15, max: 42, name: 'Intereses Restringidos' },
+                language: { score: 0, threshold: 4, max: 12, name: 'Lenguaje' }
+            };
+
+            questions.forEach((q, index) => {
+                if (answers[index] !== null) {
+                    categoryScores[q.category].score += answers[index];
+                }
+            });
+
+            const totalScore = Object.values(categoryScores).reduce((sum, cat) => sum + cat.score, 0);
+
+            return { categoryScores, totalScore };
+        }
+
+        function displayResults(scores) {
+            const { categoryScores, totalScore } = scores;
+            
+            // Overall interpretation
+            let interpretation = '';
+            let severity = 'Bajo';
+            let severityColor = '#388e3c';
+            
+            if (totalScore >= 65) {
+                interpretation = `<strong>Resultado: PROBABLE ESPECTRO AUTISTA</strong><p>Tu puntuación (${totalScore}) sugiere características significativas asociadas con el espectro autista. Se recomienda encarecidamente buscar una evaluación profesional con un especialista calificado.</p>`;
+                severity = 'Alto';
+                severityColor = '#d32f2f';
+            } else if (totalScore >= 45) {
+                interpretation = `<strong>Resultado: CARACTERÍSTICAS MODERADAS</strong><p>Tu puntuación (${totalScore}) indica algunas características asociadas con el espectro autista. Una evaluación profesional podría ser beneficial para mayor claridad.</p>`;
+                severity = 'Moderado';
+                severityColor = '#f57c00';
+            } else if (totalScore >= 25) {
+                interpretation = `<strong>Resultado: CARACTERÍSTICAS LEVES</strong><p>Tu puntuación (${totalScore}) muestra algunas características, pero por debajo del umbral de referencia. Aún así, si experimentas dificultades, consulta con un profesional.</p>`;
+                severity = 'Leve';
+                severityColor = '#1976d2';
+            } else {
+                interpretation = `<strong>Resultado: CARACTERÍSTICAS MÍNIMAS</strong><p>Tu puntuación (${totalScore}) sugiere pocas características asociadas con el espectro autista basado en estas preguntas de detección.</p>`;
+                severity = 'Mínimo';
+                severityColor = '#388e3c';
+            }
+
+            document.getElementById('overallScore').textContent = totalScore;
+            document.getElementById('scoreInterpretation').textContent = `${severity} - Puntuación: ${totalScore}/240`;
+            document.getElementById('scoreInterpretation').style.color = severityColor;
+            document.getElementById('interpretationText').innerHTML = interpretation;
+
+            // Category cards
+            let categoriesHTML = '';
+            Object.values(categoryScores).forEach(cat => {
+                const percentage = (cat.score / cat.max) * 100;
+                const status = cat.score >= cat.threshold ? '⚠️ Elevado' : '✓ Normal';
+                const statusColor = cat.score >= cat.threshold ? '#d32f2f' : '#388e3c';
+                
+                categoriesHTML += `
+                    <div class="category-card ${cat.name.toLowerCase().split(' ')[0]}">
+                        <h3>${getCategoryName(cat.name.split(' ')[0])}</h3>
+                        <div class="category-score">${cat.score}</div>
+                        <div class="category-threshold">
+                            <div style="margin-bottom: 8px;">
+                                <span style="font-weight: 600;">Estado:</span> <span style="color: ${statusColor};">${status}</span>
+                            </div>
+                            <div style="font-size: 0.85em; color: #666;">
+                                Umbral de referencia: ${cat.threshold} | Máximo posible: ${cat.max}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('categoryResults').innerHTML = categoriesHTML;
+
+            // Detailed results
+            let detailedHTML = `
+                <div class="result-item">
+                    <div class="result-label">Puntuación Total</div>
+                    <div class="result-value">${totalScore}/240</div>
+                </div>
+            `;
+            
+            Object.values(categoryScores).forEach(cat => {
+                const categoryKey = Object.keys(categoryScores).find(k => categoryScores[k].name === cat.name);
+                detailedHTML += `
+                    <div class="result-item">
+                        <div class="result-label">${cat.name}</div>
+                        <div class="result-value">
+                            ${cat.score}/${cat.max} (Umbral: ${cat.threshold})
+                            ${cat.score >= cat.threshold ? ' - <span style="color: #d32f2f; font-weight: 600;">Por encima del umbral</span>' : ' - <span style="color: #388e3c; font-weight: 600;">Dentro del rango típico</span>'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('detailedResults').innerHTML = detailedHTML;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            answers = new Array(questions.length).fill(null);
+            document.getElementById('resultsSection').classList.remove('active');
+            document.getElementById('introSection').classList.add('active');
+            document.getElementById('introSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Initialize
+        document.getElementById('totalQuestions').textContent = questions.length;
+    </script>
+</body>
+</html>
